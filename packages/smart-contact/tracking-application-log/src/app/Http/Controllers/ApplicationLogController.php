@@ -2,19 +2,31 @@
 
 namespace SmartContact\TrackingApplicationLog\app\Http\Controllers;
 
-use App\ApplicationLog;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use SmartContact\TrackingApplicationLog\app\Models\ApplicationLog;
 
 class ApplicationLogController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
-        return view('tracking-application-log::application-log.index');
+        $request = request('q');
+        $applicationLogs = ApplicationLog::where('description', 'like', "%{$request}%")
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('tracking-application-log::application-log.index', compact('applicationLogs'));
     }
 
-    public function show($applicationLog)
+    /**
+     * @param ApplicationLog $applicationLog
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function show(ApplicationLog $applicationLog)
     {
+        dd($applicationLog);
         return view('tracking-application-log::application-log.show', compact('applicationLog'));
     }
 }

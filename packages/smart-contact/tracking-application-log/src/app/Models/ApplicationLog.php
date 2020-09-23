@@ -22,13 +22,7 @@ class ApplicationLog extends Model
         'ip',
     ];
 
-    protected $cast = [
-        'changes' => 'array',
-        'log' => 'array',
-    ];
-
     /**
-     * @return \Illuminate\Database\Eloquent/**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function actor()

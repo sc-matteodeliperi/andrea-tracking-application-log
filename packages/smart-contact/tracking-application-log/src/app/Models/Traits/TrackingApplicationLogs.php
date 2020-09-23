@@ -3,6 +3,7 @@
 namespace SmartContact\TrackingApplicationLog\app\Models\Traits;
 
 
+use App\Http\Controllers\Auth\LoginController;
 use Jenssegers\Agent\Agent;
 use ReflectionClass;
 use SmartContact\TrackingApplicationLog\app\Models\ApplicationLog;
@@ -21,14 +22,6 @@ trait TrackingApplicationLogs
                 $model->registerApplicationLog($event);
             });
         }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function applicationLogs()
-    {
-        return $this->morphMany(ApplicationLog::class, 'subject');
     }
 
     /**
@@ -67,22 +60,26 @@ trait TrackingApplicationLogs
     }
 
     /**
-     * @param $event
+     * @param null $event
+     * @param null $baseInfoUserArray
      * @throws \ReflectionException
      */
-    protected function registerApplicationLog($event)
+    protected function registerApplicationLog($event = null, $baseInfoUserArray = null)
     {
-        $baseInfoUserArray = [
-            'level' => 'info',
-            'description' => $this->getApplicationLogDescription($this, $event),
-            'changes' => $this->applicationLogsChanges(),
-            'actor_id' => auth()->user()->id ?? null,
-        ];
+        if(!isset($baseInfoUserArray)){
+            $baseInfoUserArray = [
+                'level' => 'info',
+                'description' => $this->getApplicationLogDescription($this, $event),
+                'changes' => json_decode($this->applicationLogsChanges()),
+                'actor_id' => auth()->user()->id ?? null,
+                'subject' => strtolower((new ReflectionClass($this))->getShortName())
+            ];
+        }
 
-        $getAgent = $this->getAgent();
+        $getAgent = getAgent();
 
         $registerNewLogin = array_merge($baseInfoUserArray, $getAgent);
-        $this->applicationLogs()->create($registerNewLogin);
+        ApplicationLog::create($registerNewLogin);
     }
 
     /**
@@ -111,31 +108,19 @@ trait TrackingApplicationLogs
     }
 
     /**
-     * @return array
+     *
      */
-    private function getAgent()
+    public function trackingUserLogin($email)
     {
-        $device = new Agent();
-        $browser = $device->browser();
-        $platform = $device->platform();
-
-        return [
-            "user_agent" => $device->getUserAgent(),
-            "browser" => $browser ?? null,
-            "browser_version" => $device->version($browser) ?? null,
-            "platform" => $platform ?? null,
-            "platform_version" => null,
-            "ip" => $this->getClientIpAddress(),
+        $baseInfoUserArray = [
+            'level' => 'info',
+            'description' => "new_user_login",
+            'log' => json_encode([
+                'user_email' => $email
+            ]),
+            'subject' => 'LoginController'
         ];
-    }
 
-    /**
-     * @return mixed|string
-     */
-    private function getClientIpAddress()
-    {
-        return request()->server->get('HTTP_X_FORWARDED_FOR') ?
-            explode(',', request()->server->get('HTTP_X_FORWARDED_FOR'))[0] :
-            request()->server->get('REMOTE_ADDR');
+        $this->registerApplicationLog(null, $baseInfoUserArray);
     }
 }

@@ -16,7 +16,7 @@ class CreateApplicationLogsTable extends Migration
         Schema::create('application_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('actor_id')->nullable();
-            $table->nullableMorphs('subject');
+            $table->string('subject');
             $table->string('subject_link')->nullable();
             $table->string('description');
             $table->text('log')->nullable();

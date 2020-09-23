@@ -39,34 +39,40 @@
                 </th>
             </tr>
 
-{{--            @foreach($applicationLogs as $applicationLog)--}}
-{{--                <tr class="border-b border-gray-300 hover:bg-blue-100">--}}
-{{--                    <td class="py-4 px-6">--}}
-{{--                        {{ $applicationLog->actor->email }}--}}
-{{--                    </td>--}}
-{{--                    <td class="py-4 px-6">--}}
-{{--                        {{ $applicationLog->subject_id }}--}}
-{{--                    </td>--}}
-{{--                    <td class="py-4 px-6">--}}
-{{--                        {{ $applicationLog->description }}--}}
-{{--                        @if($applicationLog->subject_link)--}}
-{{--                            <a href="{{ $applicationLog->subject_link }}" class="link-teal"><i class="fa fa-fw fa-external-link-alt"></i></a>--}}
-{{--                        @endif--}}
-{{--                    </td>--}}
-{{--                    <td class="py-4 px-6">--}}
-{{--                        {{ $applicationLog->level }}--}}
-{{--                    </td>--}}
+            @foreach($applicationLogs as $applicationLog)
+                <tr class="border-b border-gray-300 hover:bg-blue-100">
+                    <td class="py-4 px-6">
+                        @if(isset($applicationLog->actor))
+                            {{ $applicationLog->actor->email }}
+                        @elseif(isset($applicationLog->log) && isset(json_decode($applicationLog->log)->user_email))
+                            {{ json_decode($applicationLog->log)->user_email }}
+                        @else
+                             -
+                        @endif
+                    </td>
+                    <td class="py-4 px-6">
+                        {{ $applicationLog->subject }}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{ $applicationLog->description }}
+                        @if($applicationLog->subject_link)
+                            <a href="{{ $applicationLog->subject_link }}" class="link-teal"><i class="fa fa-fw fa-external-link-alt"></i></a>
+                        @endif
+                    </td>
+                    <td class="py-4 px-6">
+                        {{ $applicationLog->level }}
+                    </td>
 
-{{--                    <td class="py-4 px-6">--}}
-{{--                        {{ $applicationLog->ip }}--}}
-{{--                    </td>--}}
-{{--                    <td class="py-4 px-6" align="right">--}}
-{{--                        <a href="{{ route('application_logs.show', [ 'application_log' => $applicationLog ]) }}" class="button-icon-gray"><i class="far fa-fw fa-eye"></i></a>--}}
-{{--                    </td>--}}
-{{--                </tr>--}}
-{{--            @endforeach--}}
-{{--        </table>--}}
-{{--    </div>--}}
-{{--    {{ $applicationLogs->links() }}--}}
+                    <td class="py-4 px-6">
+                        {{ $applicationLog->ip }}
+                    </td>
+                    <td class="py-4 px-6" align="right">
+                        <a href="{{ route('application_logs.show', [ 'application_log' => $applicationLog ]) }}" class="button-icon-gray"><i class="far fa-fw fa-eye"></i></a>
+                    </td>
+                </tr>
+            @endforeach
+        </table>
+    </div>
+    {{ $applicationLogs->links() }}
 
 @endsection
